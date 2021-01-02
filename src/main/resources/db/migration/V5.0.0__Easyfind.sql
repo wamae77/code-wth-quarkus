@@ -1,0 +1,2 @@
+ALTER TABLE users ADD timestmp TIMESTAMP;
+ALTER TABLE property ADD timestmp TIMESTAMP;

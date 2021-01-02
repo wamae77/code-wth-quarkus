@@ -1,0 +1,1 @@
+ALTER TABLE property ADD ownerIdstr VARCHAR(255);
