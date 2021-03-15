@@ -1,0 +1,14 @@
+org\acme\easyfindv8\resteasyjackson\Roles.class
+org\acme\easyfindv8\resteasyjackson\Property.class
+org\acme\easyfindv8\resteasyjackson\ApplicationUser.class
+org\acme\easyfindv8\resteasyjackson\JacksonResource.class
+org\acme\easyfindv8\resteasyjackson\TriFunction.class
+org\acme\easyfindv8\resteasyjackson\PropertyImage.class
+org\acme\easyfindv8\resteasyjackson\ImageModel.class
+org\acme\easyfindv8\resteasyjackson\MyObjectMapperCustomizer.class
+org\acme\easyfindv8\resteasyjackson\ApplicationUserResource.class
+org\acme\easyfindv8\resteasyjackson\JacksonResource$Quark.class
+org\acme\easyfindv8\resteasyjackson\TokenUtils.class
+org\acme\easyfindv8\resteasyjackson\PropertyResource.class
+org\acme\easyfindv8\resteasyjackson\TokenService.class
+org\acme\easyfindv8\resteasyjackson\FormData.class

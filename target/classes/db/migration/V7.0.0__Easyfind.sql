@@ -1,0 +1,1 @@
+ALTER TABLE property ADD image_data bytea;

@@ -29,13 +29,13 @@ public class ApplicationUser {
     public String password;
     public Boolean verified;
     public String user_role;
-    public Long timestamp;
+    public LocalDateTime timestamp;
 
     public ApplicationUser() {
         //default constructor
     }
 
-    public ApplicationUser(Long id, String fname, String lname, String email, String phonenumber, String password, Boolean verified, String user_role, Long timestamp) {
+    public ApplicationUser(Long id, String fname, String lname, String email, String phonenumber, String password, Boolean verified, String user_role, LocalDateTime timestamp) {
         this.id = id;
         this.fname = fname;
         this.lname = lname;
@@ -60,11 +60,11 @@ public class ApplicationUser {
     };
 
 
-    public Function<PgPool, Uni<Long>> RegisterUser = client -> {
-        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt(10));
+    public static BiFunction<PgPool,ApplicationUser, Uni<Long>> RegisterUser = (client,applicationUser) -> {
+        String hashedPassword = BCrypt.hashpw(applicationUser.password, BCrypt.gensalt(10));
         LocalDateTime localDateTime = LocalDateTime.now();
         return client.preparedQuery("INSERT INTO users (fname, lname, email, phonenumber, password, userrole, timestmp) VALUES ($1, $2, $3, $4, $5, $6, $7)  RETURNING (id)")
-                .execute(Tuple.wrap(new Object[]{fname, lname, email, phonenumber, hashedPassword, user_role, localDateTime}))
+                .execute(Tuple.wrap(new Object[]{applicationUser.fname, applicationUser.lname, applicationUser.email, applicationUser.phonenumber, hashedPassword, applicationUser.user_role, localDateTime}))
                 .onItem().transform(rows -> rows.iterator().next().getLong("id"));
     };
 
@@ -106,15 +106,18 @@ public class ApplicationUser {
                 .onFailure().invoke(Throwable::printStackTrace);
     };
 
-    public static BiFunction<PgPool, ApplicationUser, Uni<Boolean>> updateUserDetails = (client, applicationUser) -> {
-        return client.preparedQuery("UPDATE users SET fname =$1, lname =$2, email=$3 ,phonenumber=$4, password=$5,verified=$6 WHERE id =$7")
+    public static TriFunction<PgPool, Integer, ApplicationUser, Uni<Boolean>> updateUserDetails = (client, userId, applicationUser) -> {
+        String hashedPassword = BCrypt.hashpw(applicationUser.password, BCrypt.gensalt(10));
+        LocalDateTime localDateTime = LocalDateTime.now();
+        return client.preparedQuery("UPDATE users SET fname =$1, lname =$2, email=$3 ,phonenumber=$4, password=$5,verified=$6 ,updated_timestmp = $7 WHERE id =$8")
                 .execute(Tuple.wrap(new Object[]{applicationUser.fname,
                         applicationUser.lname,
                         applicationUser.email,
                         applicationUser.phonenumber,
-                        applicationUser.password,
+                        hashedPassword,
                         applicationUser.verified,
-                        applicationUser.id})).onItem().transform(rows -> rows.rowCount() == 1);
+                        localDateTime,
+                        userId})).onItem().transform(rows -> rows.rowCount() == 1);
     };
 
     public static BiFunction<PgPool, Long, Uni<Boolean>> deleteUser = (client, id) -> {
@@ -132,6 +135,6 @@ public class ApplicationUser {
                 row.getString("password"),
                 row.getBoolean("verified"),
                 row.getString("userrole"),
-                row.getLong("timestmp"));
+                row.getLocalDateTime("timestmp"));
     }
 }

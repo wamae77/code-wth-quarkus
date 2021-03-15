@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class ApplicationUserResource {
                 .onItem().transform(Boolean::booleanValue)
                 .flatMap(exist -> {
                     if (!exist)
-                        return applicationUser.RegisterUser.apply(client)
+                        return ApplicationUser.RegisterUser.apply(client,applicationUser)
                                 .onItem().transform(id -> URI.create("/user/" + id))
                                 .onItem().transform(uri -> Response.created(uri).build());
                     throw new WebApplicationException(Response.status(404).entity(" User already exist ").build());
@@ -52,7 +53,7 @@ public class ApplicationUserResource {
     }
 
 
-    @GET
+    @POST
     @Path("/login")
     @PermitAll
     public Uni<Map<String, Object>> LoginService(ApplicationUser user) {
@@ -66,23 +67,22 @@ public class ApplicationUserResource {
 
 
     @GET
-    @RolesAllowed(Roles.ADMIN)
     public Multi<ApplicationUser> allUsers() {
         return ApplicationUser.findAllUsers.apply(client);
     }
 
     @PUT
     @RolesAllowed({Roles.ADMIN, Roles.USER})
-    public Uni<Response> updateUser(ApplicationUser applicationUser) {
-        return ApplicationUser.updateUserDetails.apply(client, applicationUser)
+    public Uni<Response> updateUser(ApplicationUser applicationUser) throws IOException {
+        return ApplicationUser.updateUserDetails.apply(client, Integer.valueOf(id),applicationUser)
                 .onItem().transform(updated -> updated ? Response.Status.OK : Response.Status.NOT_FOUND)
                 .onItem().transform(status -> Response.status(status).build());
     }
 
     @DELETE
     @RolesAllowed({Roles.ADMIN, Roles.USER})
-    public Uni<Response> delete(@QueryParam("id") Long id) {
-        return ApplicationUser.deleteUser.apply(client, id)
+    public Uni<Response> delete() {
+        return ApplicationUser.deleteUser.apply(client, Long.valueOf(id))
                 .onItem().transform(deleted -> deleted ? Response.Status.NO_CONTENT : Response.Status.NOT_FOUND)
                 .onItem().transform(status -> Response.status(status).build());
     }

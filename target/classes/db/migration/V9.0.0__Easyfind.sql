@@ -1,0 +1,1 @@
+ALTER TABLE image_files RENAME COLUMN id TO image_id;

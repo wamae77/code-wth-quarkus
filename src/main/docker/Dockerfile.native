@@ -4,14 +4,22 @@
 # Before building the container image run:
 #
 # ./mvnw package -Pnative
-#
+#or
+# mvn package -Pnative -Dquarkus.native.container-build=true
+
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native -t quarkus/code-with-quarkus .
+# docker build -f src/main/docker/Dockerfile.native -t quarkus/code-with-quarkusv2 .
 #
 # Then run the container using:
 #
 # docker run -i --rm -p 8080:8080 quarkus/code-with-quarkus
+#
+#docker tag fabec684235a gcr.io/project2021-306517/quarkus-quickstartv2
+#
+#docker push gcr.io/project2021-306517/quarkus-quickstartv2
+
+#gcloud beta run deploy --platform managed --allow-unauthenticated --image gcr.io/project2021-306517/quarkus-quickstartv2 --set-env-vars DISABLE_SIGNAL_HANDLERS=foobar
 #
 ###
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.3
@@ -25,3 +33,5 @@ EXPOSE 8080
 USER 1001
 
 CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
+
+

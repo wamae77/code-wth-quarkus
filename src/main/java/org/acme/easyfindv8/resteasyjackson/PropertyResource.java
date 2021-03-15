@@ -4,6 +4,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.pgclient.PgPool;
 import org.eclipse.microprofile.jwt.Claim;
+import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -11,6 +12,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 
 @Path("property")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -60,4 +62,12 @@ public class PropertyResource {
                 .onItem().transform(deleted -> deleted ? Response.Status.NO_CONTENT : Response.Status.NOT_FOUND)
                 .onItem().transform(status -> Response.status(status).build());
     }
+
+    @POST
+    @Path("/upload")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Uni<Long> addImage(@MultipartForm FormData formData, @QueryParam("id")Long idp) throws IOException {
+        return Property.uploadImage.apply(client,idp,formData);
+    }
 }
+
